@@ -14,15 +14,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Запрос аутентификации по email")
-public class EmailAuthRequest {
+@Schema(description = "Запрос на добавление нового email")
+public class CreateEmailRequest {
 
-    @Schema(description = "Email пользователя", example = "user@example.com")
     @NotBlank
     @Email
+    @Schema(description = "Email, который нужно добавить", example = "user@example.com")
     private String email;
-
-    @Schema(description = "Пароль", example = "password123")
-    @NotBlank
-    private String password;
 }

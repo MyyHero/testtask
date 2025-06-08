@@ -1,11 +1,14 @@
 package com.example.testtask.service.impl;
 
+import com.example.testtask.dto.response.AccountResponse;
 import com.example.testtask.entity.Account;
 import com.example.testtask.exception.AccountNotFoundException;
 import com.example.testtask.exception.InvalidBalanceAmountException;
 import com.example.testtask.exception.InvalidTransferAmountException;
 import com.example.testtask.exception.SelfTransferException;
+import com.example.testtask.mapper.AccountMapper;
 import com.example.testtask.repository.AccountRepository;
+import com.example.testtask.security.SecurityUtil;
 import com.example.testtask.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
 
     @Transactional
     @Override
@@ -75,6 +79,24 @@ public class AccountServiceImpl implements AccountService {
             }
         }
     }
+
+
+    @Override
+    public AccountResponse getCurrentUserAccount() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Account account = accountRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден: " + currentUserId));
+        return accountMapper.toDto(account);
+    }
+
+    @Transactional
+    @Override
+    public void transferToAnotherUser(BigDecimal amount, Long targetUserId) {
+        Long fromUserId = SecurityUtil.getCurrentUserId();
+        transfer(fromUserId, targetUserId, amount);
+    }
+
+
 
 
 }

@@ -3,7 +3,6 @@ package com.example.testtask.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,9 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Ответ при успешной аутентификации")
-public class AuthResponse {
+public class PhoneResponse {
+    @Schema(description = "ID записи телефона", example = "1")
+    private Long id;
 
-    @Schema(description = "JWT токен", example = "eyJhbGciOiJIUzI1NiJ9...")
-    private String token;
+    @Schema(description = "Номер телефона", example = "+79001234567")
+    private String phone;
 }

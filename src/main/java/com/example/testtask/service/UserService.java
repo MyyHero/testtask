@@ -1,14 +1,13 @@
 package com.example.testtask.service;
 
-import com.example.testtask.dto.request.UserUpdateRequest;
 import com.example.testtask.dto.response.UserResponse;
+import com.example.testtask.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserResponse> getUserById(Long id);
+    UserResponse getUserById(Long id);
 
     List<UserResponse> searchUsers(
             String name,
@@ -19,9 +18,7 @@ public interface UserService {
             int size
     );
 
-    void updateUser(Long userId, UserUpdateRequest request);
 
-    boolean isEmailTaken(String email);
+    User getById(Long id);
 
-    boolean isPhoneTaken(String phone);
 }
