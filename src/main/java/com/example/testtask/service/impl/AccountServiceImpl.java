@@ -3,7 +3,7 @@ package com.example.testtask.service.impl;
 import com.example.testtask.dto.response.AccountResponse;
 import com.example.testtask.entity.Account;
 import com.example.testtask.exception.AccountNotFoundException;
-import com.example.testtask.exception.InvalidBalanceAmountException;
+import com.example.testtask.exception.InsufficientFundsException;
 import com.example.testtask.exception.InvalidTransferAmountException;
 import com.example.testtask.exception.SelfTransferException;
 import com.example.testtask.mapper.AccountMapper;
@@ -51,7 +51,7 @@ public class AccountServiceImpl implements AccountService {
         if (from.getBalance().compareTo(amount) < 0) {
             log.warn("Недостаточно средств у пользователя {} для перевода {} руб.", fromUserId, amount);
 
-            throw new InvalidBalanceAmountException("Недостаточно средств");
+            throw new InsufficientFundsException("Недостаточно средств");
         }
         from.setBalance(from.getBalance().subtract(amount));
         to.setBalance(to.getBalance().add(amount));
