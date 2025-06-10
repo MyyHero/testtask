@@ -15,8 +15,7 @@ docker-compose up --build
 
 Swagger UI доступен по адресу
 
-bash
-Copy
+
 http://localhost:8080/swagger-ui.html
 Нажмите Authorize и вставьте JWT из /api/v1/auth/login.
 
