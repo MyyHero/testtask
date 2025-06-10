@@ -6,6 +6,7 @@ import com.example.testtask.dto.response.PhoneResponse;
 import com.example.testtask.entity.PhoneData;
 import com.example.testtask.entity.User;
 import com.example.testtask.exception.AccessDeniedException;
+import com.example.testtask.exception.InvalidNumberOfPhones;
 import com.example.testtask.exception.PhoneNumberAlreadyExistsException;
 import com.example.testtask.exception.PhoneNumberNotFoundException;
 import com.example.testtask.mapper.PhoneMapper;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +71,10 @@ public class PhoneServiceImpl implements PhoneService {
         if (!Objects.equals(phoneData.getUser().getId(), userId)) {
             log.warn("Попытка удалить чужой телефон. Phone ID={}, User ID={}", phoneId, userId);
             throw new AccessDeniedException("Вы не можете удалить телефон другого пользователя");
+        }
+        if (phoneRepository.countByUser_Id(userId)==1){
+            throw new InvalidNumberOfPhones("Нельзя удалить единственный телефон");
+
         }
 
         phoneRepository.delete(phoneData);

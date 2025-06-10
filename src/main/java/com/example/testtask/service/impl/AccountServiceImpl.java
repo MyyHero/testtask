@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 
@@ -47,7 +48,12 @@ public class AccountServiceImpl implements AccountService {
         Account second = accountRepository.findByUserIdForUpdate(secondId).orElseThrow(() -> new AccountNotFoundException("Аккаунт не найден: " + secondId));
 
         Account from = fromUserId.equals(first.getUser().getId()) ? first : second;
-        Account to = toUserId.equals(first.getUser().getId()) ? second : first;
+        Account to   = (from == first) ? second : first;
+
+        log.info("DEBUG: fromUserId={}, resolvedFromId={}, balance={}",
+                fromUserId, from.getUser().getId(), from.getBalance());
+
+
         if (from.getBalance().compareTo(amount) < 0) {
             log.warn("Недостаточно средств у пользователя {} для перевода {} руб.", fromUserId, amount);
 
@@ -56,7 +62,8 @@ public class AccountServiceImpl implements AccountService {
         from.setBalance(from.getBalance().subtract(amount));
         to.setBalance(to.getBalance().add(amount));
         log.info("Перевод {} руб. от пользователя {} к {} выполнен успешно", amount, fromUserId, toUserId);
-
+        accountRepository.save(from);
+        accountRepository.save(to);
 
     }
 
@@ -64,19 +71,34 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public void processScheduledInterest() {
-        log.info("Запуск начисления процентов по аккаунтам");
-        List<Account> accounts = accountRepository.findAll();
-        for (Account account : accounts) {
-            BigDecimal current = account.getBalance();
-            BigDecimal limit = account.getInitialDeposit().multiply(BigDecimal.valueOf(2.07));
 
-            if (current.compareTo(limit) < 0) {
-                BigDecimal increased = current.multiply(BigDecimal.valueOf(1.1));
-                BigDecimal newBalance = increased.min(limit);
-                account.setBalance(newBalance);
-                log.info("Проценты начислены: аккаунт ID={}, старый баланс={}, новый баланс={}",
-                        account.getId(), current, newBalance);
-            }
+        final BigDecimal LIMIT_FACTOR   = BigDecimal.valueOf(2.07);
+        final BigDecimal INTEREST_FACTOR = BigDecimal.valueOf(1.10);
+
+        List<Account> toUpdate = accountRepository.findAll()
+                .stream()
+                .filter(acc -> acc.getBalance()
+                        .compareTo(acc.getInitialDeposit()
+                                .multiply(LIMIT_FACTOR)) < 0)
+                .peek(acc -> {
+                    BigDecimal limit = acc.getInitialDeposit()
+                            .multiply(LIMIT_FACTOR);
+
+                    BigDecimal newBalance = acc.getBalance()
+                            .multiply(INTEREST_FACTOR)
+                            .min(limit)
+                            .setScale(2, RoundingMode.HALF_UP);
+
+                    log.info("Начислены %: accId={}, old={}, new={}",
+                            acc.getId(), acc.getBalance(), newBalance);
+
+                    acc.setBalance(newBalance);
+                })
+                .toList();
+
+        if (!toUpdate.isEmpty()) {
+            accountRepository.saveAll(toUpdate);
+            accountRepository.flush();
         }
     }
 

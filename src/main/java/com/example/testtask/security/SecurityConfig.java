@@ -18,19 +18,22 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().hasRole("USER")
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable());
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/api/v1/auth/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+        );
+
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 }

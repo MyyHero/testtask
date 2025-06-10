@@ -21,6 +21,7 @@
 		<java.version>17</java.version>
 		<jjwt.version>0.11.5</jjwt.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
+		<flyway.version>10.9.1</flyway.version>
 	</properties>
 
 	<dependencies>
@@ -63,6 +64,20 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.7.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>${flyway.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<version>${flyway.version}</version>
+
+		</dependency>
+
 
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -129,6 +144,33 @@
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok-mapstruct-binding</artifactId>
+			<version>0.2.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>1.19.7</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.9.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -151,6 +193,13 @@
 							<artifactId>lombok</artifactId>
 							<version>1.18.32</version>
 						</path>
+
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>0.2.0</version>
+						</path>
+
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>

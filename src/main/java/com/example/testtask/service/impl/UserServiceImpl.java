@@ -5,14 +5,11 @@ import com.example.testtask.entity.*;
 import com.example.testtask.exception.UserNotFoundException;
 import com.example.testtask.mapper.UserMapper;
 import com.example.testtask.repository.UserRepository;
-import com.example.testtask.service.EmailService;
-import com.example.testtask.service.PhoneService;
 import com.example.testtask.service.UserService;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +23,6 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final EmailService emailService;
-    private final PhoneService phoneService;
     private final UserMapper userMapper;
 
     @Override
@@ -43,32 +38,51 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
     @Override
-    @Cacheable(value = "userSearch", key = "#root.methodName + '_' + #name + '_' + #email + '_' + #phone + '_' + #dateOfBirthAfter + '_' + #page + '_' + #size")
-    public List<UserResponse> searchUsers(String name, String email, String phone, String dateOfBirthAfter, int page, int size) {
-        log.info("Поиск пользователей по фильтрам: name={}, email={}, phone={}, dateOfBirthAfter={}", name, email, phone, dateOfBirthAfter);
+    @Cacheable(
+            value = "userSearch",
+            key   = """
+                'searchUsers_' + #name + '_' + #email + '_' + #phone + '_' + \
+                #dateOfBirthAfter + '_' + #pageable.pageNumber + '_' + #pageable.pageSize
+                """
+    )
+    public List<UserResponse> searchUsers(String name,
+                                          String email,
+                                          String phone,
+                                          String dateOfBirthAfter,
+                                          Pageable pageable) {
 
-        Specification<User> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (name != null) {
-                predicates.add(cb.like(cb.lower(root.get("name")), name.toLowerCase() + "%"));
-            }
-            if (email != null) {
-                predicates.add(cb.equal(root.join("emails").get("email"), email));
-            }
-            if (phone != null) {
-                predicates.add(cb.equal(root.join("phones").get("phone"), phone));
-            }
-            if (dateOfBirthAfter != null) {
-                predicates.add(cb.greaterThan(root.get("dateOfBirth"), LocalDate.parse(dateOfBirthAfter)));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        log.info("Поиск пользователей: name={}, email={}, phone={}, dateAfter={}",
+                name, email, phone, dateOfBirthAfter);
 
-        return userRepository.findAll(spec, PageRequest.of(page, size)).stream()
+        Specification<User> spec = (root, q, cb) -> cb.conjunction();
+
+        if (name != null && !name.isBlank())
+            spec = spec.and((root, q, cb) ->
+                    cb.like(cb.lower(root.get("name")), name.toLowerCase() + "%"));
+
+        if (email != null && !email.isBlank())
+            spec = spec.and((root, q, cb) ->
+                    cb.equal(root.join("emails").get("email"), email));
+
+        if (phone != null && !phone.isBlank())
+            spec = spec.and((root, q, cb) ->
+                    cb.equal(root.join("phones").get("phone"), phone));
+
+        if (dateOfBirthAfter != null && !dateOfBirthAfter.isBlank()) {
+            LocalDate date = LocalDate.parse(dateOfBirthAfter);
+            spec = spec.and((root, q, cb) -> cb.greaterThan(root.get("dateOfBirth"), date));
+        }
+
+        spec = spec.and((root, q, cb) -> { q.distinct(true); return cb.conjunction(); });
+
+        return userRepository.findAll(spec, pageable)
+                .stream()
                 .map(userMapper::toDto)
                 .toList();
     }
+
 
     @Override
     public User getById(Long id) {

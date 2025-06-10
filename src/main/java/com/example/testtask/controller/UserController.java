@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -33,20 +35,19 @@ public class UserController {
     }
 
     @GetMapping
-    @Operation(summary = "Поиск пользователей по фильтрам")
+    @Operation(summary = "Поиск пользователей")
     public ResponseEntity<List<UserResponse>> searchUsers(
-            @Parameter(description = "Фильтр по имени (начинается с)") @RequestParam(required = false) String name,
-            @Parameter(description = "Фильтр по email (точное совпадение)") @RequestParam(required = false) String email,
-            @Parameter(description = "Фильтр по телефону (точное совпадение)") @RequestParam(required = false) String phone,
-            @Parameter(description = "Фильтр по дате рождения после") @RequestParam(required = false) String dateOfBirthAfter,
-            @PageableDefault(size = 10, page = 0) @ParameterObject Pageable pageable
-    ) {
-        List<UserResponse> result = userService.searchUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String dateOfBirthAfter,
+            @ParameterObject Pageable pageable) {
+
+        List<UserResponse> list = userService.searchUsers(
                 name, email, phone, dateOfBirthAfter,
-                pageable.getPageNumber(),
-                pageable.getPageSize()
+                pageable
         );
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(list);
     }
 
 

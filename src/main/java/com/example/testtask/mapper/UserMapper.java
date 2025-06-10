@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-//    @Mapping(target = "emails", expression = "java(mapEmails(user.getEmails()))")
-//    @Mapping(target = "phones", expression = "java(mapPhones(user.getPhones()))")
-//    @Mapping(target = "balance", expression = "java(user.getAccount() != null ? user.getAccount().getBalance().toPlainString() : null)")
+    @Mapping(target = "emails", expression = "java(mapEmails(user.getEmails()))")
+    @Mapping(target = "phones", expression = "java(mapPhones(user.getPhones()))")
+    @Mapping(target = "balance", expression = "java(user.getAccount() != null ? user.getAccount().getBalance().toPlainString() : null)")
     UserResponse toDto(User user);
 
     default List<String> mapEmails(List<EmailData> emailDataList) {

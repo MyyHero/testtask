@@ -4,7 +4,7 @@ import com.example.testtask.entity.User;
 import com.example.testtask.exception.InvalidEmailOrPasswordException;
 import com.example.testtask.exception.InvalidPhoneOrPasswordException;
 import com.example.testtask.repository.UserRepository;
-import com.example.testtask.security.JwUtil;
+import com.example.testtask.security.JwtUtils;
 import com.example.testtask.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final JwUtil jwUtil;
+    private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidEmailOrPasswordException("Неверный email или пароль");
         }
 
-        String token = jwUtil.generateToken(user.getId());
+        String token = jwtUtils.generateToken(user.getId());
         log.info("Успешная аутентификация по email: {}", email);
 
         return token;
@@ -57,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
             log.warn("Неверный пароль для номера телефона '{}'", phone);
             throw new InvalidPhoneOrPasswordException("Неверный номер телефона или пароль");
         }
-        String token = jwUtil.generateToken(user.getId());
+        String token = jwtUtils.generateToken(user.getId());
         log.info("Успешная аутентификация по номеру телефона {}", phone);
 
         return token;

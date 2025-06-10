@@ -8,6 +8,7 @@ import com.example.testtask.entity.User;
 import com.example.testtask.exception.AccessDeniedException;
 import com.example.testtask.exception.EmailAlreadyExistsException;
 import com.example.testtask.exception.EmailNotFoundException;
+import com.example.testtask.exception.InvalidNumberOfEmails;
 import com.example.testtask.mapper.EmailMapper;
 import com.example.testtask.repository.EmailDataRepository;
 import com.example.testtask.security.SecurityUtil;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +71,9 @@ public class EmailServiceImpl implements EmailService {
             log.warn("Попытка удалить email другим пользователем. Email ID={}, User ID={}", emailId, userId);
             throw new AccessDeniedException("Вы не можете удалить email другого пользователя");
         }
+        if (emailRepository.countByUser_Id(userId) == 1)
+            throw new InvalidNumberOfEmails("Нельзя удалить последний e-mail");
+
 
         emailRepository.delete(emailData);
         log.info("Email ID={} удалён пользователем ID={}", emailId, userId);

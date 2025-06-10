@@ -9,6 +9,7 @@ import com.example.testtask.dto.response.PhoneResponse;
 import com.example.testtask.service.EmailService;
 import com.example.testtask.service.PhoneService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
@@ -83,4 +85,5 @@ public class UserProfileController {
     public ResponseEntity<List<PhoneResponse>> getUserPhones() {
         return ResponseEntity.ok(phoneService.getUserPhones());
     }
+
 }

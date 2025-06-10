@@ -18,7 +18,7 @@ import lombok.Setter;
 public class PhoneAuthRequest {
     @Schema(description = "Телефон пользователя", example = "79207865432")
     @NotBlank
-    @Pattern(regexp = "79\\d{9}", message = "Неверный формат телефона")
+    @Pattern(regexp = "7\\d{10}", message = "Неверный формат телефона")
     private String phone;
 
     @Schema(description = "Пароль", example = "password123")
