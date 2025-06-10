@@ -16,6 +16,5 @@ public interface PhoneService {
 
     List<PhoneResponse> getUserPhones();
 
-    boolean isTakenForAnotherUser(String phone, Long currentUserId);
 
 }

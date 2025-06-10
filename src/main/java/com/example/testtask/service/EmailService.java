@@ -11,6 +11,5 @@ public interface EmailService {
     void deleteEmail(Long emailId);
     EmailResponse updateEmail(Long emailId, UpdateEmailRequest updateEmailRequest);
     List<EmailResponse> getUserEmails();
-    boolean isTakenForAnotherUser(String email, Long currentUserId);
 
 }

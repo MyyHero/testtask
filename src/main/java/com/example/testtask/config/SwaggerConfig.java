@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info      = @Info(title = "Test-Task API", version = "v1"),
-        security  = @SecurityRequirement(name = "bearerAuth")   // ⬅ global
+        security  = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
         name         = "bearerAuth",

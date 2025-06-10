@@ -2,7 +2,6 @@ package com.example.testtask.controller;
 
 import com.example.testtask.dto.request.TransferRequest;
 import com.example.testtask.dto.response.AccountResponse;
-import com.example.testtask.entity.Account;
 import com.example.testtask.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

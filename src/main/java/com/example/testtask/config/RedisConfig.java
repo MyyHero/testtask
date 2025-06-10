@@ -40,7 +40,7 @@ public class RedisConfig {
                                    GenericJackson2JsonRedisSerializer ser) {
 
         RedisCacheConfiguration cfg = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))                         // ⬅ TTL
+                .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(ser));

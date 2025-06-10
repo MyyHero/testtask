@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -72,29 +73,43 @@ class TransferFlowIT {
     @Autowired AccountRepository   accRepo;
     @Autowired PasswordEncoder     encoder;
     @Autowired MockMvc             mvc;
+    @Autowired
+    private JdbcTemplate jdbc;
 
     @BeforeEach
     void seed() {
-        if (userRepo.count() == 0) {
-            User alice = userRepo.save(User.builder()
-                    .name("Alice")
-                    .dateOfBirth(LocalDate.of(1990, 1, 1))
-                    .password(encoder.encode("pwd1"))
-                    .build());
+        // 1) Полностью сбрасываем таблицы
+        accRepo.deleteAll();
+        emailRepo.deleteAll();
+        userRepo.deleteAll();
 
-            User bob = userRepo.save(User.builder()
-                    .name("Bob")
-                    .dateOfBirth(LocalDate.of(1995, 2, 2))
-                    .password(encoder.encode("pwd2"))
-                    .build());
+        // 2) Сбрасываем sequences через JdbcTemplate (auto-commit)
+        jdbc.execute("ALTER SEQUENCE user_seq RESTART WITH 1");
+        jdbc.execute("ALTER SEQUENCE account_seq RESTART WITH 1");
+        jdbc.execute("ALTER SEQUENCE email_seq RESTART WITH 1");
+        jdbc.execute("ALTER SEQUENCE phone_seq RESTART WITH 1");
 
-            emailRepo.save(new EmailData(null, alice, "alice@ex.com"));
-            emailRepo.save(new EmailData(null, bob,   "bob@ex.com"));
+        // 3) Засеиваем Alice(id=1)/Bob(id=2)
+        User alice = userRepo.save(User.builder()
+                .name("Alice")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .password(encoder.encode("pwd1"))
+                .build());
 
-            accRepo.save(new Account(null, alice, new BigDecimal("1000"), BigDecimal.ZERO));
-            accRepo.save(new Account(null, bob,   new BigDecimal("50"),   BigDecimal.ZERO));
-        }
+        User bob = userRepo.save(User.builder()
+                .name("Bob")
+                .dateOfBirth(LocalDate.of(1995, 2, 2))
+                .password(encoder.encode("pwd2"))
+                .build());
+
+        emailRepo.save(new EmailData(null, alice, "alice@ex.com"));
+        emailRepo.save(new EmailData(null, bob,   "bob@ex.com"));
+
+        accRepo.save(new Account(null, alice, new BigDecimal("1000"), BigDecimal.ZERO));
+        accRepo.save(new Account(null, bob,   new BigDecimal("50"),   BigDecimal.ZERO));
     }
+
+
 
     private String loginByEmail(String email, String pass) throws Exception {
         String json = mvc.perform(post("/api/v1/auth/login/email")

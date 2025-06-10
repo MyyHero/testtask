@@ -1,7 +1,7 @@
 package com.example.testtask.service.impl;
 
 import com.example.testtask.dto.response.UserResponse;
-import com.example.testtask.entity.*;
+import com.example.testtask.entity.User;
 import com.example.testtask.exception.UserNotFoundException;
 import com.example.testtask.mapper.UserMapper;
 import com.example.testtask.repository.UserRepository;
@@ -14,7 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
