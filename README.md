@@ -50,3 +50,7 @@ email bob@ex.com
 phone 75550000086
 
 пароль pwd2
+
+и вот собственно сама ссылка на тестовое задание
+
+https://docs.google.com/document/d/15mT8r_uVRpUYppJFPLpvjHaa8EZewAjC/edit?tab=t.0
